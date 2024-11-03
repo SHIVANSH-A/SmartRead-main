@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=no">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf_viewer.min.css" />
+    <style type="text/css">
+        #upload-button {
+            width: 150px;
+            display: block;
+            margin: 20px auto;
+        }
+
+        #file-to-upload {
+            display: none;
+        }
+
+        #pdf-main-container {
+            width: 400px;
+            margin: 20px auto;
+        }
+
+        #pdf-loader {
+            display: none;
+            text-align: center;
+            color: #999999;
+            font-size: 13px;
+            line-height: 100px;
+            height: 100px;
+        }
+
+        #pdf-contents {
+            display: none;
+        }
+
+        #pdf-meta {
+            overflow: hidden;
+            margin: 0 0 20px 0;
+        }
+
+        #pdf-buttons {
+            float: left;
+        }
+
+        #page-count-container {
+            float: right;
+        }
+
+        #pdf-current-page {
+            display: inline;
+        }
+
+        #pdf-total-pages {
+            display: inline;
+        }
+
+        #pdf-canvas {
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+
+        #page-loader {
+            height: 100px;
+            line-height: 100px;
+            text-align: center;
+            display: none;
+            color: #999999;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+
+        <div>
+            <button id="upload-button">Select PDF</button>
+            <input type="file" id="file-to-upload" accept="application/pdf" />
+        </div>
+        <span>
+
+            <div id="pdf-main-container">
+                <div id="pdf-loader">Loading document ...</div>
+                <div id="pdf-contents">
+                    <div id="pdf-meta">
+                        <div id="pdf-buttons">
+                            <button id="pdf-prev">Previous</button>
+                            <button id="pdf-next">Next</button>
+                        </div>
+                        <div id="page-count-container">Page <div id="pdf-current-page"></div> of <div
+                                id="pdf-total-pages">
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="pdf-canvas" width="400"></canvas>
+                    <div id="text-layer" class="textLayer"></div>
+                    <div id="page-loader">Loading page ...</div>
+                </div>
+            </div>
+        </span>
+        <div class="hero-right">
+            <div id="word-container">
+                <h2>Difficult Words <button id="analyse" type="submit">Analyse</button></h2>
+                <ul id="difficult-words-list">
+                </ul>
+                <!-- <form class="d-flex" role="search">
+                    <input id="search-input" class="form-control me-2" type="search" placeholder="Search"
+                        aria-label="Search">
+                    <button id="search-btn1" class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+                <h1 class="display-5 fw-bold text-body-emphasis"><span id="word"></span></h1>
+                <div class="col-lg-6 mx-auto">
+                    <p class="lead mb-4"><span id="definition"></span></p>
+                </div> -->
+                <button class="search-btn3">WordStock</button>
+            </div>
+        </div>
+    </div>
+
+    <dialog id="wordDialog">
+        <h2 id="d-word"></h2>
+        <p><strong>Definition:</strong><span id="definition"></span></p>
+        <p><strong>Phonetic:</strong> <span id="phonetic"></span></p>
+        <p><strong>Synonym:</strong> <span id="synonym"></span></p>
+        <p><strong>Antonym:</strong> <span id="antonym"></span></p>
+        <p><strong>Part of Speech:</strong> <span id="partOfSpeech"></span></p>
+        <!-- <p><strong>Use in Sentence:</strong> <span id="sentence"></span></p> -->
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+
+        var __PDF_DOC,
+            __CURRENT_PAGE,
+            __TOTAL_PAGES,
+            __PAGE_RENDERING_IN_PROGRESS = 0,
+            __CANVAS = $('#pdf-canvas').get(0),
+            __CANVAS_CTX = __CANVAS.getContext('2d'),
+            PDFJS = window['pdfjs-dist/build/pdf'];
+
+
+        var stock1 = document.querySelector(".search-btn3");
+        stock1.addEventListener('click', () => {
+            console.log("Clicked");
+            
+            // Redirect to manual dictionary page
+            window.location.href = '/wordstock';
+        });
+        // const searchBtn1 = document.getElementById('search-btn1');
+        // const searchBtn2 = document.getElementById('search-btn2');
+        // const searchInput = document.getElementById('search-input');
+        // const wordOutput = document.getElementById('word');
+        // const definitionOutput = document.getElementById('definition');
+
+
+        // const apiKey = '9c5919a965mshd51b96f3f870486p1ef889jsn9c14e6d10b37';
+        // const apiHost = 'dictionary-by-api-ninjas.p.rapidapi.com';
+
+        // const fetchDictionaryData = async (query) => {
+        //     try {
+        //         const response = await fetch(`https://${apiHost}/v1/dictionary?word=${query}`, {
+        //             method: 'GET',
+        //             headers: {
+        //                 'x-rapidapi-key': apiKey,
+        //                 'x-rapidapi-host': apiHost
+        //             }
+        //         });
+
+        //         if (!response.ok) {
+        //             throw new Error(`Error: ${response.status} ${response.statusText}`);
+        //         }
+
+        //         const data = await response.json();
+
+        //         console.log(data);
+        //         if (data.definition) {
+        //             const definitions = data.definition.split(";"); // Split definitions by semicolon
+        //             const firstTwoDefinitions = definitions.slice(0, 2); // Take only the first two definitions
+        //             wordOutput.textContent = "Meaning of : " + data.word;
+        //             definitionOutput.innerHTML = firstTwoDefinitions.join('<br>'); // Join and display as separate lines
+        //         } else {
+        //             wordOutput.textContent = 'No Results Found';
+        //             definitionOutput.textContent = 'Please try searching for another word.';
+        //         }
+        //     } catch (error) {
+        //         console.error('Fetch Error:', error);
+        //         wordOutput.textContent = 'Error';
+        //         definitionOutput.textContent = 'Unable to fetch definition. Please try again later.';
+        //     }
+        // };
+
+
+        // searchBtn1.addEventListener('click', (e) => {
+        //     e.preventDefault();
+        //     const query = searchInput.value.trim();
+
+        //     if (query) {
+        //         fetchDictionaryData(query);
+        //     } else {
+        //         wordOutput.textContent = 'Input Required';
+        //         definitionOutput.textContent = 'Please enter a word to search.';
+        //     }
+        // });
+        //     let currentPageText = ""; 
+        // if(pdf_Url){
+        //     showPDF(pdfUrl);
+        // }
+        PDFJS.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.worker.min.js';
+
+        function showPDF(pdf_url) {
+            $("#pdf-loader").show();
+
+            PDFJS.getDocument({ url: pdf_url }).promise.then(function (pdf_doc) {
+                __PDF_DOC = pdf_doc;
+                __TOTAL_PAGES = __PDF_DOC.numPages;
+
+                // Hide the pdf loader and show pdf container in HTML
+                $("#pdf-loader").hide();
+                $("#pdf-contents").show();
+                $("#pdf-total-pages").text(__TOTAL_PAGES);
+
+                // Show the first page
+                showPage(1);
+            }).catch(function (error) {
+                // If error re-show the upload button
+                $("#pdf-loader").hide();
+                $("#upload-button").show();
+
+                alert(error.message);
+            });
+        }
+
+        function showPage(page_no) {
+            __PAGE_RENDERING_IN_PROGRESS = 1;
+            __CURRENT_PAGE = page_no;
+
+            // Disable Prev & Next buttons while page is being loaded
+            $("#pdf-next, #pdf-prev").attr('disabled', 'disabled');
+
+            // While page is being rendered hide the canvas and show a loading message
+            $("#pdf-canvas").hide();
+            $("#page-loader").show();
+
+            // Update current page in HTML
+            $("#pdf-current-page").text(page_no);
+
+            // Fetch the page
+            __PDF_DOC.getPage(page_no).then(function (page) {
+                // Get viewport of the page at required scale
+                let viewport = page.getViewport({
+                    scale: 1,
+                });
+
+                // As the canvas is of a fixed width we need to set the scale of the viewport accordingly
+                let scale = __CANVAS.width / viewport.width;
+                viewport = page.getViewport({
+                    scale: scale
+                });
+
+                // Set canvas height
+                __CANVAS.height = viewport.height;
+
+                var renderContext = {
+                    canvasContext: __CANVAS_CTX,
+                    viewport: viewport
+                };
+
+                // Render the page contents in the canvas
+                page.render(renderContext).promise.then(function () {
+                    __PAGE_RENDERING_IN_PROGRESS = 0;
+
+                    // Re-enable Prev & Next buttons
+                    $("#pdf-next, #pdf-prev").removeAttr('disabled');
+
+                    // Show the canvas and hide the page loader
+                    $("#pdf-canvas").show();
+                    $("#page-loader").hide();
+
+                    // Return the text contents of the page after the pdf has been rendered in the canvas
+                    return page.getTextContent();
+                }).then(function (textContent) {
+                    // Get canvas offset
+                    currentPageText = textContent.items.map(item => item.str).join(" ");
+                    var canvas_offset = $("#pdf-canvas").offset();
+
+                    // Clear HTML for text layer
+                    $("#text-layer").html('');
+
+                    // Assign the CSS created to the text-layer element
+                    document.getElementById('text-layer').style.setProperty('--scale-factor', viewport.scale);
+                    $("#text-layer").css({ left: canvas_offset.left + 'px', top: canvas_offset.top + 'px' });
+
+                    // Pass the data to the method for rendering of text over the pdf canvas.
+                    PDFJS.renderTextLayer({
+                        textContentSource: textContent,
+                        container: $("#text-layer").get(0),
+                        viewport: viewport,
+                        textDivs: []
+                    });
+                });
+            });
+        }
+
+        // Upon click this should should trigger click on the #file-to-upload file input element
+        // This is better than showing the not-good-looking file input element
+        $("#upload-button").on('click', function () {
+            $("#file-to-upload").trigger('click');
+        });
+
+        // When user chooses a PDF file
+        $("#file-to-upload").on('change', function () {
+            // Validate whether PDF
+            if (['application/pdf'].indexOf($("#file-to-upload").get(0).files[0].type) == -1) {
+                alert('Error : Not a PDF');
+                return;
+            }
+
+            $("#upload-button").hide();
+
+            // Send the object url of the pdf
+            showPDF(URL.createObjectURL($("#file-to-upload").get(0).files[0]));
+        });
+
+        // Previous page of the PDF
+        $("#pdf-prev").on('click', function () {
+            if (__CURRENT_PAGE != 1)
+                showPage(--__CURRENT_PAGE);
+        });
+
+        // Next page of the PDF
+        $("#pdf-next").on('click', function () {
+            if (__CURRENT_PAGE != __TOTAL_PAGES)
+                showPage(++__CURRENT_PAGE);
+        });
+        $('#analyse').on('click', function () {
+            // $('#paragraph-textarea').val(currentPageText);
+            const text = currentPageText // Extract the current text
+
+            // Use AJAX to call the server and get difficult words
+            $.ajax({
+                url: '/prediction',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ paragraph: text }), // Send text content
+                success: function (response) {
+                    // Clear previous words
+                    $('#difficult-words-list').empty();
+                    const apiKey = '9c5919a965mshd51b96f3f870486p1ef889jsn9c14e6d10b37';
+                    const apiHost = 'dictionary-by-api-ninjas.p.rapidapi.com';
+                    console.log(response.difficultWords);
+                    // Check for difficult words in the response
+                    if (response.difficultWords && response.difficultWords.length > 0) {
+                        response.difficultWords.forEach(async (word) => {
+                            try {
+                                const apiResponse = await fetch(`https://${apiHost}/v1/dictionary?word=${word}`, { // Use 'word' instead of 'query'
+                                    method: 'GET',
+                                    headers: {
+                                        'x-rapidapi-key': apiKey,
+                                        'x-rapidapi-host': apiHost
+                                    }
+                                });
+                                const data = await apiResponse.json();
+                                if (data.definition) {
+                                    const definitions = data.definition.split(";"); // Split definitions by semicolon
+                                    const firstTwoDefinitions = definitions.slice(0, 2); // Take only the first two definitions
+
+                                    // wordOutput.textContent = data.word;
+                                    // definitionOutput.innerHTML = firstTwoDefinitions.join('<br>'); // Join and display as separate lines
+                                    $('#difficult-words-list').append(`<li>${word} - ${firstTwoDefinitions}</li>`);
+                                }
+                            } catch (error) {
+                                console.error(`Error fetching meaning for word ${word}:`, error);
+                                // $('#difficult-words-list').append(`<li>${word} - Meaning not found</li>`);
+                            }
+                        });
+                    } else {
+                        $('#difficult-words-list').append('<li>No difficult words found.</li>');
+                    }
+
+                    __PDF_DOC.getPage(__CURRENT_PAGE).then(function (page) {
+                        let viewport = page.getViewport({ scale: 1 });
+                        let scale = __CANVAS.width / viewport.width;
+                        viewport = page.getViewport({ scale: scale });
+
+                    });
+                },
+                error: function (err) {
+                    console.error('Error:', err);
+                }
+            });
+
+        });
+
+        $("#text-layer").on('dblclick', async () => {
+            console.log("LookUP");
+            let selectedWord = window.getSelection().toString().trim(); // Get the selected word
+            console.log(selectedWord);
+
+            try {
+                if (selectedWord !== "") {
+                    // Fetch definitions in one call
+                    const definitionResponse = await axios.get(`https://api.datamuse.com/words?sp=${selectedWord}&md=dspr`);
+                    // console.log(definitionResponse.data);
+                    document.getElementById("d-word").textContent = selectedWord;
+                    if (definitionResponse.data.length > 0) {
+                        const wordData = definitionResponse.data[0]; // Get the first result
+
+                        // Process definitions
+                        if (wordData.defs) {
+                            wordData.defs.forEach((def, index) => {
+                                const [partOfSpeech, description] = def.split('\t');
+                                console.log(`Definition ${index + 1}: (${partOfSpeech}) ${description}`);
+                                document.getElementById("partOfSpeech").textContent = partOfSpeech;
+                                document.getElementById("definition").textContent = description;
+                            });
+                        }
+
+                        // Fetch synonyms
+                        const synonymResponse = await axios.get(`https://api.datamuse.com/words?rel_syn=${selectedWord}`);
+                        if (synonymResponse.data.length > 0) {
+                            const synonyms = synonymResponse.data.map(syn => syn.word).join(', ');
+                            document.getElementById("synonym").textContent = synonyms;
+                        }
+
+                        // Fetch antonyms
+                        const antonymResponse = await axios.get(`https://api.datamuse.com/words?rel_ant=${selectedWord}`);
+                        if (antonymResponse.data.length > 0) {
+                            const antonyms = antonymResponse.data.map(ant => ant.word).join(', ');
+                            document.getElementById("antonym").textContent = antonyms;
+                        }
+
+                        // Position the dialog box relative to the selected word
+                        const range = window.getSelection().getRangeAt(0); // Get position of selected word
+                        const rect = range.getBoundingClientRect();
+                        const dialog = document.getElementById("wordDialog");
+                        dialog.style.position = 'absolute';
+                        dialog.style.top = `${rect.bottom}px`;
+                        dialog.style.left = `${Math.min(rect.left, rect.right)}px`; // Set position relative to the selected word
+
+                        // Show the dialog
+                        dialog.open = true;
+                    }
+                }
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+        });
+
+        $(document).ready(() => {
+            $(document).on("click", () => {
+                const dialog = document.getElementById("wordDialog");
+                dialog.open = false;
+            });
+        });
+
+    </script>
+</body>
+
+</html>

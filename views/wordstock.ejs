@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Stock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .word-input {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .word-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .word-input button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .word-input button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        td {
+            background-color: #f9f9f9;
+        }
+        td button {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        td button.edit-btn {
+            background-color: #28a745;
+            margin-right: 10px;
+        }
+        td button:hover {
+            opacity: 0.8;
+        }
+        .empty-message {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Word Stock</h1>
+    <div class="word-input">
+        <input type="text" id="wordInput" placeholder="Enter the word you want to add to your word stock">
+        <button id="addWordButton">Add Word</button>
+    </div>
+
+    <table id="wordTable">
+        <thead>
+            <tr>
+                <th>Word</th>
+                <th>Meaning</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="wordTableBody"></tbody>
+    </table>
+    
+
+    <div id="emptyMessage" class="empty-message">No words added to your word stock yet.</div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+
+const firebaseConfig = {
+            apiKey: "AIzaSyBbvTHPkBdsJ9IGeHwOxOp4XY4soKX-6QM",
+            authDomain: "smartpdf-reader.firebaseapp.com",
+            projectId: "smartpdf-reader",
+            storageBucket: "smartpdf-reader.appspot.com",
+            messagingSenderId: "818248346425",
+            appId: "1:818248346425:web:dc0a1a4aea7919296c56e8",
+            measurementId: "G-76JYRQES1G"
+        };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const wordInput = document.getElementById('wordInput');
+const wordTableBody = document.getElementById('wordTableBody');
+const emptyMessage = document.getElementById('emptyMessage');
+const addWordButton = document.getElementById('addWordButton');
+
+async function fetchMeaning(word) {
+    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+    
+    if (!response.ok) {
+        return "No definitions found.";
+    }
+    
+    const data = await response.json();
+    
+    if (data.title === "No Definitions Found") {
+        return "No definitions found.";
+    }
+
+    return data[0].meanings[0].definitions[0].definition;
+}
+
+
+async function addWord(user) {
+    const word = wordInput.value.trim();
+    if (word) {
+        try {
+            const meaning = await fetchMeaning(word); 
+            const wordsCollection = collection(db, `users/${user.uid}/words`);
+            const docRef = await addDoc(wordsCollection, { word, meaning });
+            wordInput.value = ''; 
+            addWordToTable(docRef.id, word, meaning, user); 
+            emptyMessage.style.display = 'none';
+        } catch (e) {
+            console.error("Error adding word: ", e);
+        }
+    }
+}
+
+function addWordToTable(wordId, word, meaning, user) {
+    const row = document.createElement('tr');
+    const wordCell = document.createElement('td');
+    wordCell.textContent = word;
+
+    const meaningCell = document.createElement('td');
+    meaningCell.textContent = meaning; 
+
+    const actionCell = document.createElement('td');
+    const removeButton = document.createElement('button');
+    removeButton.textContent = 'Remove';
+    removeButton.onclick = () => removeWord(user, wordId);
+    actionCell.appendChild(removeButton);
+
+    row.appendChild(wordCell);
+    row.appendChild(meaningCell); 
+    row.appendChild(actionCell); 
+    wordTableBody.appendChild(row);
+}
+
+async function displayWords(user) {
+    wordTableBody.innerHTML = ''; 
+    const wordsCollection = collection(db, `users/${user.uid}/words`);
+    const querySnapshot = await getDocs(wordsCollection);
+
+    if (querySnapshot.empty) {
+        emptyMessage.style.display = 'block';
+    } else {
+        emptyMessage.style.display = 'none';
+        querySnapshot.forEach((doc) => {
+            addWordToTable(doc.id, doc.data().word, doc.data().meaning, user); 
+        });
+    }
+}
+
+async function removeWord(user, wordId) {
+    try {
+        const wordDocRef = doc(db, `users/${user.uid}/words/${wordId}`);
+        await deleteDoc(wordDocRef);
+        displayWords(user);  
+    } catch (e) {
+        console.error("Error removing word: ", e);
+    }
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        displayWords(user);  
+
+        addWordButton.addEventListener('click', () => addWord(user));
+    } else {
+        window.location.href = 'login.html';  
+    }
+});
+
+</script>
+</body>
+</html>
+
