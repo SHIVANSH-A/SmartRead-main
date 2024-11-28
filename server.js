@@ -59,9 +59,9 @@ app.get('/pdf-viewer', (req, res) => {
 });
 
 
-app.get('/', (req, res) => {
-  res.render('index', { pdfUrl: null, difficultWords: null });
-});
+// app.get('/', (req, res) => {
+//   res.render('index', { pdfUrl: null, difficultWords: null });
+// });
 
 app.post('/upload-pdf', upload.single('pdf'), (req, res) => {
   if (!req.file) {

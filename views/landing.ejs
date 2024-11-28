@@ -6,9 +6,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900&display=swap" rel="stylesheet">
     <title>Landing Page</title>
     <link rel="stylesheet" href="/styles.css">
+    
 </head>
 <body>
     <nav class="navbar">
@@ -18,55 +19,84 @@
         </div>
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
-            <li><a href="#">Features</a></li>
-            <li><a href="#">Pricing</a></li>
-            <li><a href="#">FAQ</a></li>
-            <li><a href="#">Contact</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-link">Features</a>
+                <ul class="dropdown-menu">
+                    <li class="Manual"><a href="#">Manual Dictionary</a></li>
+                    <li class="Personal-Dict"><a href="#">Difficult Word</a></li>
+                    <li class="tts"><a href="#">Text To Speech</a></li>
+                </ul>
+            </li>              
+            <li><a href="#info">Info</a></li>
+            <li><a href="#">About</a></li>
         </ul>
-        <div class="nav-actions">
-            <button class="btn primary">LOGIN</button>
-            <button class="btn secondary">SIGN UP</button>
-        </div>
     </nav>
-
+    
+       
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="content">
             <h1>Enhance Your Reading Experience</h1>
             <p>Your All-in-One Solution for Effortless Reading</p>
-            <!-- Change the button to link to the PDF viewer -->
-            <a href="/pdf-viewer">
-                <button class="cta-btn">Start Reading</button>
-            </a>
+            <button class="cta-btn" onclick="startReading()">Start Reading</button>
+
         </div>
         <div class="human-figure">
-            <img src="/Assets/book.png" alt="Human Figure">
+            <img src="/Assets/book.png" alt="Human Figure" id="human-figure">
         </div>
         <div class="abstract-background"></div>
+        <div id="loader-container">
+            <img src="/Assets/BookLoader1.gif" alt="">
+           
+        </div>
     </section>
-    <section class="section gradient-blue">
-        <div class="head-line">
-            <h1>Explore diverse feature</h1>
+    <div id="loader-container"></div>
+    <section class="section gradient-blue" id="info">
+        
+        <div class="features-section">
+            <h2>Our Site</h2>
+            <p>
+                Welcome to <strong>Smart PDF Reader</strong> — your one-stop solution for a smarter reading experience! 
+                Our platform enables users to upload PDFs and leverages advanced ML models to detect difficult words, instantly displaying their meanings.
+            </p>
+            <div class="features-container">
+                <div class="feature-card">
+                    <div class="icon" style="background-color: black;"></div>
+                    <h3>Difficult Word Detection</h3>
+                    <p> Automatically identifies challenging words and provides meanings.</p>
+                    <a href="#" class="feature-link f4" >Learn More</a>
+                </div>
+                <div class="feature-card">
+                    <div class="icon" style="background-color: hotpink;"></div>
+                    <h3>Personalized Dictionary</h3>
+                    <p>Add words to your personalized dictionary and access then any time.</p>
+                    <a href="wordstock.ejs" class="feature-link Personal-Dict">Learn More</a>
+                </div>
+                <div class="feature-card">
+                    <div class="icon" style="background-color: limegreen;"></div>
+                    <h3>Online Manual Dictionary</h3>
+                    <p>Browse and search words manually as per your need and find their meanings.</p>
+                    <a href="/manual-dictionary" class="feature-link Manual">Learn More</a>
+                </div>
+                <div class="feature-card">
+                    <div class="icon" style="background-color: blue;"></div>
+                    <h3>Text-to-Speech Converter</h3>
+                    <p>Convert text to audio for an enhanced learning experience.</p>
+                    <a href="/tts" class="feature-link">Learn More</a>
+                </div>
+            </div>
         </div>
-        <div class="three">
-          <div class="card card1">
-            <div class="up">
-            </div>
-            <div class="down"></div>
-          </div>
-          <div class="card card2">
-            <div class="up">
-            </div>
-            <div class="down"></div>
-          </div>
-          <div class="card card3">
-            <div class="up">
-            </div>
-            <div class="down"></div>
-          </div>
-        </div>
-      </section>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" integrity="sha512-aNMyYYxdIxIaot0Y1/PLuEu3eipGCmsEUBrUq+7aVyPGMFH8z0eTP0tkqAvv34fzN6z+201d3T8HPb1svWSKHQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-      <script src="script.js"></script>
+        
+    </section>
+    
+    
+  
+    
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
