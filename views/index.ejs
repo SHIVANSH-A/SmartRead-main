@@ -4,10 +4,108 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf_viewer.min.css" />
     <style type="text/css">
+        /* Font Import */
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
+        /* Reset and Global Styles */
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            color: #eee;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #171717;
+        }
+
+        main {
+            width: 100%;
+            min-height: 90vh;
+            display: flex;
+            /* Use flexbox layout */
+            /* flex-direction: row; */
+            /* Arrange items in a row */
+            justify-content: space-between;
+            /* Space between items */
+            align-items: flex-start;
+            /* Align items to the top */
+            padding: 20px;
+        }
+
+        .leftw{
+            width: 50vw;
+            margin-left: 25vw;
+        }
+        #pdf-main-container {
+            flex: 1;
+            /* Allow the PDF container to take up the remaining space */
+            margin-right: 20px;
+            /* Add some spacing between PDF and the words list */
+        }
+
+        .div-difficult-words {
+            max-width: 30%;
+            /* Restrict width to 30% of the screen */
+            height: auto;
+            padding: 10px;
+            overflow-y: auto;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
+            /* Initially hidden */
+        }
+
+        #difficult-words-list {
+            list-style: none;
+            /* Remove default bullets */
+            padding: 0;
+            margin: 0;
+            max-height: 400px;
+            /* Limit height to avoid overflowing */
+            overflow-y: auto;
+        }
+
+        #difficult-words-list li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            font-size: 0.9rem;
+            word-wrap: break-word;
+            /* Ensure long words wrap properly */
+        }
+
+
+        /* Button Styles */
+        button {
+            cursor: pointer;
+            padding: 5px 10px;
+            color: #eee;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            outline: none;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        button:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Content Styles */
+
         #upload-button {
             width: 150px;
             display: block;
@@ -18,13 +116,14 @@
             display: none;
         }
 
-        #pdf-main-container {
-            width: 400px;
-            margin: 20px auto;
+        #pdf-canvas {
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            max-width: 100%;
         }
 
-        #pdf-loader {
-            display: none;
+        /* Loader Styles */
+        #pdf-loader,
+        #page-loader {
             text-align: center;
             color: #999999;
             font-size: 13px;
@@ -36,89 +135,102 @@
             display: none;
         }
 
-        #pdf-meta {
-            overflow: hidden;
-            margin: 0 0 20px 0;
+        /* Footer Styles */
+        footer {
+            position: sticky;
+            bottom: 0;
+            height: 10vh;
+            background-color: #000000;
+            display: flex;
+            align-items: center;
         }
 
-        #pdf-buttons {
-            float: left;
+        footer ul {
+            list-style-type: none;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
         }
 
-        #page-count-container {
-            float: right;
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        #pdf-current-page {
-            display: inline;
+        .pagination button {
+            background: transparent;
+            font-size: 1.5rem;
+            margin: 0 10px;
         }
 
-        #pdf-total-pages {
-            display: inline;
+        .pagination span {
+            font-size: 1.1rem;
+            margin: 0 10px;
         }
 
-        #pdf-canvas {
-            border: 1px solid rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
-        }
-
-        #page-loader {
-            height: 100px;
-            line-height: 100px;
+        /* Zoom Control Styles */
+        #zoomValue {
+            display: inline-block;
+            font-size: 0.9rem;
+            width: 60px;
             text-align: center;
-            display: none;
-            color: #999999;
-            font-size: 13px;
+        }
+
+
+        /* Dialog Styles */
+        #wordDialog {
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            /* #pdf-main-container {
+                width: 95%;
+            } */
+
+            footer ul {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+            }
+
+            .pagination {
+                margin: 10px 0;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div>
+    <main>
+        <div class="leftw">
+            <div class="r1">
+                <button id="upload-button">Select PDF</button>
+                <input type="file" id="file-to-upload" accept="application/pdf" />
+            </div>
 
-        <div>
-            <button id="upload-button">Select PDF</button>
-            <input type="file" id="file-to-upload" accept="application/pdf" />
-        </div>
-        <span>
-
-            <div id="pdf-main-container">
-                <div id="pdf-loader">Loading document ...</div>
+            <div id="pdf-main-container r2">
+                <!-- <div id="pdf-loader">Loading document ...</div> -->
                 <div id="pdf-contents">
-                    <div id="pdf-meta">
-                        <div id="pdf-buttons">
-                            <button id="pdf-prev">Previous</button>
-                            <button id="pdf-next">Next</button>
-                        </div>
-                        <div id="page-count-container">Page <div id="pdf-current-page"></div> of <div
-                                id="pdf-total-pages">
-                            </div>
-                        </div>
-                    </div>
-                    <canvas id="pdf-canvas" width="400"></canvas>
+                    <canvas id="pdf-canvas" class="hidden pdf-viewer" width="400"></canvas>
                     <div id="text-layer" class="textLayer"></div>
                     <div id="page-loader">Loading page ...</div>
                 </div>
             </div>
-        </span>
-        <div class="hero-right">
-            <div id="word-container">
-                <h2>Difficult Words <button id="analyse" type="submit">Analyse</button></h2>
-                <ul id="difficult-words-list">
-                </ul>
-                <!-- <form class="d-flex" role="search">
-                    <input id="search-input" class="form-control me-2" type="search" placeholder="Search"
-                        aria-label="Search">
-                    <button id="search-btn1" class="btn btn-outline-success" type="submit">Search</button>
-                </form>
-                <h1 class="display-5 fw-bold text-body-emphasis"><span id="word"></span></h1>
-                <div class="col-lg-6 mx-auto">
-                    <p class="lead mb-4"><span id="definition"></span></p>
-                </div> -->
-                <button class="search-btn3">WordStock</button>
-            </div>
         </div>
-    </div>
+        <div class="div-difficult-words right">
+            <ul id="difficult-words-list"></ul>
+        </div>
+        
+    </main>
 
     <dialog id="wordDialog">
         <h2 id="d-word"></h2>
@@ -127,8 +239,32 @@
         <p><strong>Synonym:</strong> <span id="synonym"></span></p>
         <p><strong>Antonym:</strong> <span id="antonym"></span></p>
         <p><strong>Part of Speech:</strong> <span id="partOfSpeech"></span></p>
-        <!-- <p><strong>Use in Sentence:</strong> <span id="sentence"></span></p> -->
     </dialog>
+
+    <footer>
+        <ul>
+            <li>
+                <div class="hero-right">
+                    <div id="word-container">
+                        <h2><button id="analyse" type="submit">Analyse</button></h2>
+                        <button class="search-btn3">WordStock</button>
+                    </div>
+                </div>
+            </li>
+            <li class="pagination">
+                <button id="previous"><i class="fas fa-arrow-alt-circle-left"></i></button>
+                <button id="next"><i class="fas fa-arrow-alt-circle-right"></i></button>
+                <span id="page-count-container">
+                    <div id="pdf-current-page"></div>
+                    <div id="pdf-total-pages">
+                </span>
+            </li>
+            <li>
+                <span id="zoomValue">150%</span>
+                <input type="range" id="zoom" name="cowbell" min="100" max="300" value="150" step="50" disabled>
+            </li>
+        </ul>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -146,69 +282,11 @@
         var stock1 = document.querySelector(".search-btn3");
         stock1.addEventListener('click', () => {
             console.log("Clicked");
-            
+
             // Redirect to manual dictionary page
             window.location.href = '/wordstock';
         });
-        // const searchBtn1 = document.getElementById('search-btn1');
-        // const searchBtn2 = document.getElementById('search-btn2');
-        // const searchInput = document.getElementById('search-input');
-        // const wordOutput = document.getElementById('word');
-        // const definitionOutput = document.getElementById('definition');
 
-
-        // const apiKey = '9c5919a965mshd51b96f3f870486p1ef889jsn9c14e6d10b37';
-        // const apiHost = 'dictionary-by-api-ninjas.p.rapidapi.com';
-
-        // const fetchDictionaryData = async (query) => {
-        //     try {
-        //         const response = await fetch(`https://${apiHost}/v1/dictionary?word=${query}`, {
-        //             method: 'GET',
-        //             headers: {
-        //                 'x-rapidapi-key': apiKey,
-        //                 'x-rapidapi-host': apiHost
-        //             }
-        //         });
-
-        //         if (!response.ok) {
-        //             throw new Error(`Error: ${response.status} ${response.statusText}`);
-        //         }
-
-        //         const data = await response.json();
-
-        //         console.log(data);
-        //         if (data.definition) {
-        //             const definitions = data.definition.split(";"); // Split definitions by semicolon
-        //             const firstTwoDefinitions = definitions.slice(0, 2); // Take only the first two definitions
-        //             wordOutput.textContent = "Meaning of : " + data.word;
-        //             definitionOutput.innerHTML = firstTwoDefinitions.join('<br>'); // Join and display as separate lines
-        //         } else {
-        //             wordOutput.textContent = 'No Results Found';
-        //             definitionOutput.textContent = 'Please try searching for another word.';
-        //         }
-        //     } catch (error) {
-        //         console.error('Fetch Error:', error);
-        //         wordOutput.textContent = 'Error';
-        //         definitionOutput.textContent = 'Unable to fetch definition. Please try again later.';
-        //     }
-        // };
-
-
-        // searchBtn1.addEventListener('click', (e) => {
-        //     e.preventDefault();
-        //     const query = searchInput.value.trim();
-
-        //     if (query) {
-        //         fetchDictionaryData(query);
-        //     } else {
-        //         wordOutput.textContent = 'Input Required';
-        //         definitionOutput.textContent = 'Please enter a word to search.';
-        //     }
-        // });
-        //     let currentPageText = ""; 
-        // if(pdf_Url){
-        //     showPDF(pdfUrl);
-        // }
         PDFJS.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.worker.min.js';
 
         function showPDF(pdf_url) {
@@ -239,7 +317,7 @@
             __CURRENT_PAGE = page_no;
 
             // Disable Prev & Next buttons while page is being loaded
-            $("#pdf-next, #pdf-prev").attr('disabled', 'disabled');
+            $("#next, #previous").attr('disabled', 'disabled');
 
             // While page is being rendered hide the canvas and show a loading message
             $("#pdf-canvas").hide();
@@ -274,7 +352,7 @@
                     __PAGE_RENDERING_IN_PROGRESS = 0;
 
                     // Re-enable Prev & Next buttons
-                    $("#pdf-next, #pdf-prev").removeAttr('disabled');
+                    $("#next, #previous").removeAttr('disabled');
 
                     // Show the canvas and hide the page loader
                     $("#pdf-canvas").show();
@@ -326,20 +404,20 @@
         });
 
         // Previous page of the PDF
-        $("#pdf-prev").on('click', function () {
+        $("#previous").on('click', function () {
             if (__CURRENT_PAGE != 1)
                 showPage(--__CURRENT_PAGE);
         });
 
         // Next page of the PDF
-        $("#pdf-next").on('click', function () {
+        $("#next").on('click', function () {
             if (__CURRENT_PAGE != __TOTAL_PAGES)
                 showPage(++__CURRENT_PAGE);
         });
         $('#analyse').on('click', function () {
             // $('#paragraph-textarea').val(currentPageText);
             const text = currentPageText // Extract the current text
-
+            $('.div-difficult-words').css('display', 'block');
             // Use AJAX to call the server and get difficult words
             $.ajax({
                 url: '/prediction',
@@ -368,8 +446,6 @@
                                     const definitions = data.definition.split(";"); // Split definitions by semicolon
                                     const firstTwoDefinitions = definitions.slice(0, 2); // Take only the first two definitions
 
-                                    // wordOutput.textContent = data.word;
-                                    // definitionOutput.innerHTML = firstTwoDefinitions.join('<br>'); // Join and display as separate lines
                                     $('#difficult-words-list').append(`<li>${word} - ${firstTwoDefinitions}</li>`);
                                 }
                             } catch (error) {
