@@ -7,7 +7,7 @@
     <style>
         body {
     font-family: Arial, sans-serif;
-    background: white;
+    background: #0b121c;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -17,18 +17,31 @@
 }
 
 .header h2{
+    position: absolute;
     font-size: 50px;
-    color: rgb(133, 118, 118);
+    color: rgb(255, 255, 255);
+    margin-bottom: 10px;
+    z-index: 4;
+    top: 2%;
+    left: 40%;
 }
 .container {
+    position: absolute;
+    top: 20%;
+    left: 36%;
+    bottom: 10%;
     background-color: #d9d9d9;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     width: 320px;
     text-align: center;
+    z-index: 2;
 }
-
+.content1{
+    position: relative;
+    top: -2%;
+}
 h2 {
     margin-bottom: 20px;
     font-size: 24px;
@@ -156,6 +169,51 @@ button:hover {
     background-color: #0056b3;
 }
 
+.container1{
+position: relative;
+width: 100%;
+height: 100vh;
+overflow: hidden;
+z-index: 1;
+}
+.bubbles
+{
+position: relative;
+display: flex;
+}
+
+.bubbles span
+{
+position: relative;
+width: 30px;
+height: 30px;
+background: #4fc3dc;
+margin: 0 4px;
+border-radius: 50%;
+box-shadow: 0 0 0 10px 00 50px 0 0 100px #4fc3dc, #4fc3dc, #4fc3dc44;
+animation: animate 15s linear infinite;
+animation-duration: calc(120s / var(--i));
+}
+.bubbles span:nth-child(even)
+{
+background: #ff2d75;
+box-shadow: 0 0 0 10px 0 0 50px 0 0 100px #ff2d75, #ff2d75, #ff2d7544;
+}
+
+.bubbles .hid{
+    visibility: hidden;
+    color: transparent;
+}
+@keyframes animate{
+    0%
+    {
+        transform: translateY(100vh) scale(0);
+    }
+        100%
+    {
+        transform: translateY(-10vh) scale(1);
+    }
+}
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
@@ -164,7 +222,61 @@ button:hover {
     <div class="header">
         <h2>SmartRead</h2>
     </div>
+    <div class="container1">
+        <div class="bubbles">
+            <span style="--i:11;"></span>
+            <span style="--i:12;"></span>
+            <span style="--i:24;"></span>
+            <span style="--i:10;"></span>
+            <span style="--i:14;"></span>
+            <span style="--i:23;"></span>
+            <span style="--i:18;"></span>
+            <span style="--i:16;"></span>
+            <span style="--i:19;"></span>
+            <span style="--i:20;"></span>
+            <span style="--i:22;"></span>
+            <span style="--i:25;"></span>
+            <span style="--i:18;"></span>
+            <span style="--i:21;"></span>
+            <span style="--i:15;"></span>
+            <span style="--i:13;"></span>
+            <span style="--i:26;"></span>
+            <span style="--i:17;"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span class="hid"></span>
+            <span style="--i:11;"></span>
+            <span style="--i:12;"></span>
+            <span style="--i:24;"></span>
+            <span style="--i:10;"></span>
+            <span style="--i:14;"></span>
+            <span style="--i:23;"></span>
+            <span style="--i:18;"></span>
+            <span style="--i:16;"></span>
+            <span style="--i:19;"></span>
+            <span style="--i:20;"></span>
+            <span style="--i:22;"></span>
+            <span style="--i:25;"></span>
+            <span style="--i:18;"></span>
+            <span style="--i:21;"></span>
+            <span style="--i:15;"></span>
+            <span style="--i:13;"></span>
+            <span style="--i:26;"></span>
+            <span style="--i:17;"></span>
+        </div>
+    </div>
     <div class="container">
+        <div class="content1">
         <h2 id="formTitle">Login</h2>
         <form id="authForm">
             <input type="email" id="email" placeholder="Email" required>
@@ -174,6 +286,7 @@ button:hover {
         <button class="forgot-password-btn" id="forgotPassword">Forgot Password?</button>
         <button class="google-btn" id="googleSignIn">Sign in with Google</button>
         <button class="toggle-btn" id="toggleForm">Don't have an account? Sign Up</button>
+        </div>
     </div>
 
     <!-- Error Modal -->
