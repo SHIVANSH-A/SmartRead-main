@@ -39,10 +39,11 @@
             padding: 20px;
         }
 
-        .leftw{
+        .leftw {
             width: 50vw;
             margin-left: 25vw;
         }
+
         #pdf-main-container {
             flex: 1;
             /* Allow the PDF container to take up the remaining space */
@@ -188,6 +189,7 @@
             border: 1px solid #555;
             border-radius: 8px;
             padding: 15px;
+            z-index: 10;
         }
 
         /* Responsive Adjustments */
@@ -229,7 +231,7 @@
         <div class="div-difficult-words right">
             <ul id="difficult-words-list"></ul>
         </div>
-        
+
     </main>
 
     <dialog id="wordDialog">
@@ -254,14 +256,14 @@
             <li class="pagination">
                 <button id="previous"><i class="fas fa-arrow-alt-circle-left"></i></button>
                 <button id="next"><i class="fas fa-arrow-alt-circle-right"></i></button>
-                <span id="page-count-container">
-                    <div id="pdf-current-page"></div>
-                    <div id="pdf-total-pages">
-                </span>
+                <div id="page-count-container" style="display: flex;flex-wrap: wrap;">
+                    <div id="pdf-current-page"></div><span> of </span>
+                    <div id="pdf-total-pages"></div>
+                </div>
             </li>
             <li>
-                <span id="zoomValue">150%</span>
-                <input type="range" id="zoom" name="cowbell" min="100" max="300" value="150" step="50" disabled>
+                <!-- <span id="zoomValue">150%</span>
+                <input type="range" id="zoom" name="cowbell" min="100" max="300" value="150" step="50" disabled> -->
             </li>
         </ul>
     </footer>
@@ -430,6 +432,9 @@
                     const apiKey = '9c5919a965mshd51b96f3f870486p1ef889jsn9c14e6d10b37';
                     const apiHost = 'dictionary-by-api-ninjas.p.rapidapi.com';
                     console.log(response.difficultWords);
+
+                    highlightDifficultWords(response.difficultWords);
+
                     // Check for difficult words in the response
                     if (response.difficultWords && response.difficultWords.length > 0) {
                         response.difficultWords.forEach(async (word) => {
@@ -450,14 +455,14 @@
                                 }
                             } catch (error) {
                                 console.error(`Error fetching meaning for word ${word}:`, error);
-                                // $('#difficult-words-list').append(`<li>${word} - Meaning not found</li>`);
+                                // $('#difficult-words-list').append(<li>${word} - Meaning not found</li>);
                             }
                         });
                     } else {
                         $('#difficult-words-list').append('<li>No difficult words found.</li>');
                     }
 
-                    __PDF_DOC.getPage(__CURRENT_PAGE).then(function (page) {
+                    _PDF_DOC.getPage(_CURRENT_PAGE).then(function (page) {
                         let viewport = page.getViewport({ scale: 1 });
                         let scale = __CANVAS.width / viewport.width;
                         viewport = page.getViewport({ scale: scale });
@@ -471,8 +476,68 @@
 
         });
 
+        function highlightDifficultWords(words) {
+            const textLayer = document.getElementById('text-layer');
+            const textContent = textLayer.textContent;
+
+            words.forEach(word => {
+                let searchIndex = 0;
+                const lowerCaseWord = word.toLowerCase(); // Convert the word to lowercase
+
+                while ((searchIndex = textContent.toLowerCase().indexOf(lowerCaseWord, searchIndex)) !== -1) {
+                    const textNodeDetails = findTextNodeAtOffset(textLayer, searchIndex);
+                    if (textNodeDetails) {
+                        const { node, startOffset } = textNodeDetails;
+                        const offsetInNode = searchIndex - startOffset;
+
+                        // Validate range boundaries
+                        if (offsetInNode + word.length <= node.textContent.length) {
+                            const range = document.createRange();
+                            range.setStart(node, offsetInNode);
+                            range.setEnd(node, offsetInNode + word.length);
+
+                            const highlightSpan = document.createElement('span');
+                            highlightSpan.className = 'highlighted';
+                            highlightSpan.style.backgroundColor = 'yellow'; // Example style
+                            try {
+                                range.surroundContents(highlightSpan);
+                            } catch (err) {
+                                console.warn(`Error highlighting word "${word}":`, err);
+                            }
+                        }
+                    }
+                    searchIndex += word.length; // Move past the current word
+                }
+            });
+        }
+
+        function findTextNodeAtOffset(container, offset) {
+            let currentOffset = 0;
+
+            const nodeIterator = document.createNodeIterator(container, NodeFilter.SHOW_TEXT, {
+                acceptNode(node) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            });
+
+            let textNode;
+            while ((textNode = nodeIterator.nextNode())) {
+                const nodeLength = textNode.textContent.length;
+
+                if (currentOffset + nodeLength >= offset) {
+                    return {
+                        node: textNode,
+                        startOffset: currentOffset
+                    };
+                }
+                currentOffset += nodeLength;
+            }
+            return null;
+        }
+
         $("#text-layer").on('dblclick', async () => {
-            console.log("LookUP");
+            // console.log("LookUP");
+            document.getElementById("antonym").innerHTML = '';
             let selectedWord = window.getSelection().toString().trim(); // Get the selected word
             console.log(selectedWord);
 
