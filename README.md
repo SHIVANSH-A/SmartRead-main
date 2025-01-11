@@ -40,11 +40,11 @@ To get started with **SmartRead** locally, follow these steps:
 1. Clone the repository:
    ```bash
    git clone https://github.com/SHIVANSH-A/SmartRead-main.git
-
+    ```
 2. Navigate to the project directory:
-   
+   ```bash
    cd SmartRead-main
-   
+   ```
 3. Install the necessary dependencies:
   
   npm install
