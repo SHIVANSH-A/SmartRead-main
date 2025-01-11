@@ -30,22 +30,7 @@ SmartRead is an intelligent PDF reader designed to enhance the reading experienc
 
 ## 📂 Project Structure
 
-SmartRead-main/
-│
-├── public/             
-│
-├── src/                 
-│   ├── components/      
-│   ├── pages/           
-│   └── utils/           
-│
-├── views/               
-│
-├── server.js            
-│
-├── README.md            
-│
-└── package.json         
+SmartRead-main/ │ ├── public/ # Static assets (CSS, JS, images) │ ├── src/ # Source code │ ├── components/ # Reusable components │ ├── pages/ # Page-level code │ └── utils/ # Utility functions │ ├── views/ # EJS templates │ ├── server.js # Backend server │ ├── README.md # Project documentation │ └── package.json # Project dependencies and scripts       
 
 
 ##  Installation and Setup
@@ -57,18 +42,18 @@ To get started with **SmartRead** locally, follow these steps:
    git clone https://github.com/SHIVANSH-A/SmartRead-main.git
 
 2. Navigate to the project directory:
-   ```bash
+   
    cd SmartRead-main
    
-3.Install the necessary dependencies:
-  ```bash
+3. Install the necessary dependencies:
+  
   npm install
   
-4.Start the server:
-  ```bash
+4. Start the server:
+  
   npm start
   
-5.Open your browser and go to http://localhost:3000 to view the application.
+5. Open your browser and go to http://localhost:3000 to view the application.
 
 
 ##  Contribution Guidelines
@@ -83,22 +68,22 @@ We welcome contributions to make **SmartRead** even better! To contribute, pleas
 # 1. Clone the forked repository to your local machine:
 ```bash
 git clone https://github.com/your-username/SmartRead-main.git
-
+```
 # 2. Navigate into the project directory:
 ```bash
 cd SmartRead-main
-
+```
 # 3. Create a new branch for your feature or bug fix:
 
 ## For a new feature:
 ```bash
 git checkout -b feature-name
-
+```
 ## For a bug fix:
 ```bash
 git checkout -b bugfix-name
-
 ```
+
 
 ### 3. Make Changes  
   -Implement your feature or fix the bug in your local repository.
