@@ -29,8 +29,24 @@ SmartRead is an intelligent PDF reader designed to enhance the reading experienc
   - scikit-learn
 
 ## 📂 Project Structure
-
-SmartRead-main/ │ ├── public/ # Static assets (CSS, JS, images) │ ├── src/ # Source code │ ├── components/ # Reusable components │ ├── pages/ # Page-level code │ └── utils/ # Utility functions │ ├── views/ # EJS templates │ ├── server.js # Backend server │ ├── README.md # Project documentation │ └── package.json # Project dependencies and scripts       
+```
+SmartRead-main/
+│
+├── public/              # Static assets (CSS, JS, images)
+│
+├── src/                 # Source code
+│   ├── components/      # Reusable components
+│   ├── pages/           # Page-level code
+│   └── utils/           # Utility functions
+│
+├── views/               # EJS templates (if applicable)
+│
+├── server.js            # Backend server
+│
+├── README.md            # Project documentation
+│
+└── package.json         # Project dependencies and scripts
+ ```     
 
 
 ##  Installation and Setup
@@ -46,13 +62,13 @@ To get started with **SmartRead** locally, follow these steps:
    cd SmartRead-main
    ```
 3. Install the necessary dependencies:
-  
+  ```bash
   npm install
-  
+  ```
 4. Start the server:
-  
+  ```bash
   npm start
-  
+  ```
 5. Open your browser and go to http://localhost:3000 to view the application.
 
 
@@ -65,37 +81,37 @@ We welcome contributions to make **SmartRead** even better! To contribute, pleas
 - Click the **Fork** button at the top right of the repository page to create a copy of the repository under your own GitHub account.
 
 ### 2. Create a New Branch
-# 1. Clone the forked repository to your local machine:
+#### 1. Clone the forked repository to your local machine:
 ```bash
 git clone https://github.com/your-username/SmartRead-main.git
 ```
-# 2. Navigate into the project directory:
+#### 2. Navigate into the project directory:
 ```bash
 cd SmartRead-main
 ```
-# 3. Create a new branch for your feature or bug fix:
+#### 3. Create a new branch for your feature or bug fix:
 
-## For a new feature:
+#### For a new feature:
 ```bash
 git checkout -b feature-name
 ```
-## For a bug fix:
+#### For a bug fix:
 ```bash
 git checkout -b bugfix-name
 ```
 
 
-### 3. Make Changes  
+#### 4. Make Changes  
   -Implement your feature or fix the bug in your local repository.
   -Make sure your code follows the project's coding style and conventions.
   -Test your changes locally to ensure they work as expected.
 
-### 4. Commit Your Changes
+### 5. Commit Your Changes
 
-### 5. Push Your Changes
+### 6. Push Your Changes
 
-### 6. Submit a Pull Request
+### 7. Submit a Pull Request
 
-### 7. Code Review
+### 8. Code Review
 
 
