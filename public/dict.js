@@ -5,8 +5,8 @@ const wordOutput = document.getElementById('word');
 const definitionOutput = document.getElementById('definition');
 
 
-const apiKey = '9c5919a965mshd51b96f3f870486p1ef889jsn9c14e6d10b37';
-const apiHost = 'dictionary-by-api-ninjas.p.rapidapi.com';
+const apiKey = 'Your-Api-Key';
+const apiHost = 'Your-Api-Key';
 
 
 const fetchDictionaryData = async (query) => {
